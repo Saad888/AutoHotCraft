@@ -1,0 +1,21 @@
+1. Loops through crafts by sending AHK script commands via command line and sending args 
+2. Accounts for food and collectables
+3. User can select when they need to use food or collectables or not
+4. Will ideally be able to run in the background without issue
+5. Profiles for various macro lengths
+
+
+Pseudocode/Process:
+
+1. Test connection to ensure FFXIV was found
+2. If found, begins main loop 
+    A) Sends command with first macro
+    B) Waits until completion
+    C) Send command for second macro if exists and Waits
+    D) Repeat for third
+    E) After all macros complete, hits confirm on collectable window if exists
+    F) If food is active:
+        Fa) Set current food time based on start and end timer
+        Fb) Check length of next craft
+        Fc) If lenght < food time (with margin of error) cancel craft and activate food
+        Fd) Re-initialize the craft
