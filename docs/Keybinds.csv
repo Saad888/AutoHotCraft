@@ -1,0 +1,106 @@
+keysym, keycode, char
+FKEYS, ON, THIS ROW
+F1, 112, 
+F2, 113, 
+F3, 114, 
+F4, 115, 
+F5, 116, 
+F6, 117, 
+F7, 118, 
+F8, 119, 
+F9, 120, 
+F10, 121, 
+F11, 122, 
+F12, 123, 
+Scroll_Lock, 145, 
+Pause, 19, 
+MAIN, KEYBOARD, HERE
+quoteleft, 192, `
+1, 49, 1
+2, 50, 2
+3, 51, 3
+4, 52, 4
+5, 53, 5
+6, 54, 6
+7, 55, 7
+8, 56, 8
+9, 57, 9
+0, 48, 0
+minus, 189, -
+equal, 187, =
+BackSpace, 8, 
+Tab, 9, 	
+q, 81, q
+w, 87, w
+e, 69, e
+r, 82, r
+t, 84, t
+y, 89, y
+u, 85, u
+i, 73, i
+o, 79, o
+p, 80, p
+bracketleft, 219, [
+bracketright, 221, ]
+backslash, 220, \
+Caps_Lock, 20, 
+a, 65, a
+s, 83, s
+d, 68, d
+f, 70, f
+g, 71, g
+h, 72, h
+j, 74, j
+k, 75, k
+l, 76, l
+semicolon, 186, ;
+quoteright, 222, '
+Return, 13, 
+Shift_L, 16, 
+z, 90, z
+x, 88, x
+c, 67, c
+v, 86, v
+b, 66, b
+n, 78, n
+m, 77, m
+comma, 188, ,
+period, 190, .
+slash, 191, /
+Shift_R, 16, 
+Control_L, 17, 
+Win_L, 91, 
+Alt_L, 18, 
+space, 32,  
+Alt_R, 18, 
+Win_R, 92, 
+Control_R, 17, 
+METHOD, KEYS, HERE
+Insert, 45, 
+Home, 36, 
+Prior, 33, 
+Delete, 46, 
+End, 35, 
+Next, 34, 
+Up, 38, 
+Left, 37, 
+Down, 40, 
+Right, 39, 
+NUMPAD, KEYS, HERE
+0, 96, 0
+period, 110, .
+1, 97, 1
+2, 98, 2
+3, 99, 3
+4, 100, 4
+5, 101, 5
+6, 102, 6
+7, 103, 7
+8, 104, 8
+9, 105, 9
+Return, 13, 
+plus, 107, +
+minus, 109, -
+asterisk, 106, *
+slash, 111, /
+Num_Lock, 144, 

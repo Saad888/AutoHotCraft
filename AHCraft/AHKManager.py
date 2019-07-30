@@ -1,19 +1,48 @@
+import os
+import subprocess
+import exceptions
 
 
 class AHKManager:
     def __init__(self, path):
+        """ Module for running AHK via command line and processing response"""
         self.path = path
         self.craft_active = False
         self.create_base()
 
 
-    def execute(self, hotkey):
-        # Run the script passing the hotkey as a parameter
-        pass
+    def execute(self, hotkey='', modifier=''):
+        """ Executes AHK script via command line, sending keys as argument
+        hotkey - str: in form needed by AHK (see their documentation)
+        modifier - str: ^, !, or + based on modifier (see AHK documentation)
+        """
 
-    def start_thread(self):
-        # Start the thread running the main script
-        pass
+        arg = modifier + "{" + hotkey + "}"
+        cmd = f'{self.path} AHCScript.ahk {arg}'
+
+        # Run the script passing the hotkey as a parameter, verifies files
+        try:
+            result = subprocess.run(cmd, 
+                                    stderr=subprocess.PIPE, 
+                                    stdout=subprocess.PIPE)
+        except FileNotFoundError:
+            # If error, checks if AHCScript is missing
+            try:
+                check_file = file.open('AHCScript.ahk')
+                check_file.close()
+            except FileNotFoundError:
+                raise exceptions.AHKScriptMissingError
+            raise exceptions.AHKMissingError
+        
+        # Verify script executed without issue
+        if result.returncode != 0:
+            raise exceptions.AHKFailedReturnError
+
+        # Verifies if the FFXIV process was found
+        process_id = result.stdout.decode('utf-8')
+        if not process_id: 
+            raise exceptions.ProcessNotFoundError
+
 
     def create_base(self):
         # Create the base ahk script incase script
@@ -30,5 +59,5 @@ class AHKManager:
 
         
 if __name__ == '__main__':
-    Tester = AHKManager(path='')
-    Tester.create_base()
+    Tester = AHKManager(path='"C:\\Program Files\\AutoHotkey\\AutoHotkey.exe"')
+    Tester.execute('a')
