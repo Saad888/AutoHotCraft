@@ -14,3 +14,7 @@ are the virtual key code, making life much easier. While tkinter provides the ke
 decimal, we can conver them to hex(). All we need to do now is to create an easy
 filter for the virtual keys to appear on the display, which can be done via a .csv
 Also filter which vkeys need to be used in the first place
+
+
+UI Things to do: 
+- Remove activate button from first macro

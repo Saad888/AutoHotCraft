@@ -2,16 +2,34 @@ import tkinter as tk
 
 
 class MainBody:
-    def __init__(self, configs=None):
-        self.configs = configs
+    def __init__(self, event_craft, event_inturrupt):
+        self.root = tk.Tk()
+        self.root.withdraw()
+        
+        # State Variables
+        self.button_state = 0  # 0 - Idle, 1 - Crafting, 2 - Finishing sequence
+
+        # Event connections
+        self.event_craft = event_craft
+        self.event_inturrupt = event_inturrupt
+
+
+
+    def start(self):
+        # Checkbox and instance Variables:
         self.default_style = {
             'font': ("Helvetica", 14), 
             'bg': "purple",
             'fg': "white"
         }
-        self.root = tk.Tk()
+        self.root.deiconify()
+        self.check_macro_1 = tk.IntVar(self.root)
+        self.check_macro_2 = tk.IntVar(self.root)
+        self.check_macro_3 = tk.IntVar(self.root)
+        self.check_food = tk.IntVar(self.root)
+        self.check_pot = tk.IntVar(self.root)
+        self.check_collect = tk.IntVar(self.root)
 
-    def start(self):
         # Create all body components and launch the main loop
         self.fr_title = tk.Frame(self.root)  # Frame for title
         self.fr_selection = tk.Frame(self.root)  # Frame for profiles (EMPTY)
@@ -42,12 +60,20 @@ class MainBody:
 
         # Bodies
         self.body = (
-            WidgetGroup(self.fr_body, "Macro 1", self.default_style),
-            WidgetGroup(self.fr_body, "Macro 2", self.default_style),
-            WidgetGroup(self.fr_body, "Macro 3", self.default_style),
-            WidgetGroup(self.fr_body, "Food", self.default_style),
-            WidgetGroup(self.fr_body, "Craft Window", self.default_style, False),
-            WidgetGroup(self.fr_body, "Select/Confirm", self.default_style, False)
+            WidgetGroup(self.fr_body, "Macro 1", self.default_style, 
+                        enabler=True, var=self.check_macro_1),
+            WidgetGroup(self.fr_body, "Macro 2", self.default_style, 
+                        enabler=True, var=self.check_macro_2),
+            WidgetGroup(self.fr_body, "Macro 3", self.default_style, 
+                        enabler=True, var=self.check_macro_3),
+            WidgetGroup(self.fr_body, "Food", self.default_style, 
+                        enabler=True, var=self.check_food),
+            WidgetGroup(self.fr_body, "Potion", self.default_style, 
+                        enabler=True, var=self.check_pot),
+            WidgetGroup(self.fr_body, "Craft Window", self.default_style, 
+                        False),
+            WidgetGroup(self.fr_body, "Select/Confirm", self.default_style, 
+                        False)
         )
 
         # *** Render Widgets ***
@@ -62,8 +88,9 @@ class MainBody:
         # ********* Footer *********
         # *** Create Widgets ***
         self.start_btn = tk.Button(self.fr_footer, text="BEGIN", 
-                                   bg="blue", fg="yellow", width=10, height=3)
-        self.check_food = tk.Checkbutton(self.fr_footer, text="Use Food")
+                                   bg="blue", fg="yellow", width=10, height=3,
+                                   command=self.handler_start_button)
+
         self.food_max_time = tk.IntVar()
         self.food_radio = [
             tk.Radiobutton(self.fr_footer, 
@@ -75,16 +102,21 @@ class MainBody:
                            variable=self.food_max_time, 
                            value=40)
         ]
-        self.check_potion = tk.Checkbutton(self.fr_footer, text="Use Potion")
-        self.check_collect = tk.Checkbutton(self.fr_footer, text="Collectable Craft")
+        self.check_button_collect = tk.Checkbutton(
+            self.fr_footer, 
+            text="Collectable Craft",
+            variable=self.check_collect    
+        )
         
         # *** Render Widgets ***
         self.render(self.start_btn, rowspan=3)
-        self.render(self.check_food, col=1, sticky=tk.W)
         self.render(self.food_radio[0], col=2, sticky=tk.W)
         self.render(self.food_radio[1], col=3, sticky=tk.W)
-        self.render(self.check_potion, row=1, col=1, sticky=tk.W)
-        self.render(self.check_collect, row=2, col=1, sticky=tk.W)
+        self.render(self.check_button_collect, row=2, col=1, sticky=tk.W)
+
+
+        # Assign Events
+
 
         # Start root:
         self.fr_title.pack(side=tk.TOP, fill=tk.X)
@@ -100,11 +132,67 @@ class MainBody:
                     padx=padx, pady=pady, rowspan=rowspan, sticky=sticky)
 
 
+    def handler_start_button(self):
+        btn = self.start_btn
+        if self.button_state == 0:
+            self.button_state = 1  # Waiting for complete
+            btn.config(text="RUNNING")
+            self.begin_craft()
+        elif self.button_state == 1:
+            self.button_state = 2  # Waiting for complete
+            btn.config(text="WAITING")
+            self.event_inturrupt()
+
+
+    def reactivate_system(self):
+        self.start_btn.config(text="START")
+        self.button_state = 0  
+
+
+
+    def begin_craft(self):
+        # Constructs all parameters for craft to initate, and commences craft
+        macros = []
+        macros.append(self.body[0].get())
+        if self.check_macro_2.get():
+            macros.append(self.body[1].get())
+        if self.check_macro_3.get():
+            macros.append(self.body[2].get())
+        
+        if self.check_food.get():
+            food_hk, food_rem = self.body[3].get()
+            food_time = self.food_max_time.get()
+            food = (food_hk, food_rem, food_time)
+        else:
+            food = None
+
+        if self.check_pot.get():
+            potion = self.body[4].get()
+        else:
+            potion = None
+
+        confirm = self.body[6].entry_hk.get()
+        window = self.body[5].entry_hk.get()
+        settings = (self.check_food.get() == 1, 
+                    self.check_pot.get() == 1, 
+                    self.check_collect.get() == 1)
+
+        '''
+        print(macros)
+        print(food)
+        print(potion)
+        print(confirm)
+        print(window)
+        print(settings)
+        '''
+
+        self.event_craft(macros, food, potion, confirm, window, settings,
+                         self.reactivate_system)
 
 
 
 class WidgetGroup:
-    def __init__(self, frame, label, style, timer=True):
+    def __init__(self, frame, label, style, timer=True, enabler=False, var=None):
         """
         Groups a label with two entries for the body frame
         
@@ -116,12 +204,20 @@ class WidgetGroup:
         self.label = tk.Label(frame, text=label, **style)
         self.entry_hk = tk.Entry(frame, width=16)
         self.entry_time = tk.Entry(frame, width=3) if timer else None
+        self.enable = tk.Checkbutton(frame, variable=var) if enabler else None
 
     def render_all(self, row):
+        x = 3
+        y = 1
         self.label.grid(row=row, padx=3, pady=0, sticky=tk.E)
-        self.entry_hk.grid(row=row, column=1, columnspan=3, padx=3, pady=1)
-        if (self.entry_time is not None):
-            self.entry_time.grid(row=row, column=4, padx=3, pady=1)
+        self.entry_hk.grid(row=row, column=1, columnspan=3, padx=x, pady=y)
+        if self.entry_time is not None:
+            self.entry_time.grid(row=row, column=4, padx=x, pady=y)
+        if self.enable is not None:
+            self.enable.grid(row=row, column=5, padx=x, pady=y)
+
+    def get(self):
+        return (self.entry_hk.get(), int(self.entry_time.get()))
 
 
         

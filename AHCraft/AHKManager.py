@@ -4,21 +4,20 @@ import exceptions
 
 
 class AHKManager:
-    def __init__(self, path):
+    def __init__(self, path=None):
         """ Module for running AHK via command line and processing response"""
         self.path = path
-        self.craft_active = False
         self.create_base()
 
 
-    def execute(self, hotkey='', modifier=''):
+    def execute(self, hotkey=''):
         """ Executes AHK script via command line, sending keys as argument
-        hotkey - str: in form needed by AHK (see their documentation)
-        modifier - str: ^, !, or + based on modifier (see AHK documentation)
+        hotkey - str: in the form {vk##} based on keycode
+        Add ^, + or ! before for modifiers
+        See AHK documentation for more detail
         """
 
-        arg = modifier + "{" + hotkey + "}"
-        cmd = f'{self.path} AHCScript.ahk {arg}'
+        cmd = f'{self.path} AHCScript.ahk {hotkey}'
 
         # Run the script passing the hotkey as a parameter, verifies files
         try:
@@ -60,4 +59,4 @@ class AHKManager:
         
 if __name__ == '__main__':
     Tester = AHKManager(path='"C:\\Program Files\\AutoHotkey\\AutoHotkey.exe"')
-    Tester.execute('a')
+    Tester.execute('vk4D')

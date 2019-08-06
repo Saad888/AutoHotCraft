@@ -16,3 +16,8 @@ class AHKFailedReturnError(Exception):
 class AHKScriptMissingError(Exception):
     """ When the AHK Script has been misplaced or renamed"""
     pass
+
+
+class AHKExeAccessError(Exception):
+    """When the .exe cannot be loaded"""
+    pass
