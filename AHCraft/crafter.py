@@ -1,5 +1,4 @@
 import time
-import threading
 from AHKManager import AHKManager
 
 
@@ -28,7 +27,7 @@ class Crafter:
         self.use_collect = False
 
 
-    def update(self, macros, food, pot, confirm, window, settings, button_func):
+    def update(self, macros, food, pot, confirm, window, settings):
         """ Update all keybinds internally 
         macros: list of tuple (hotkey: str, timer: int)
         food: tuple (hotkey: str, remaining: int, timer: int)
@@ -88,12 +87,11 @@ class Crafter:
             (self.hk_confirm, 3)
         ]
 
-        self.button_func = button_func
 
-    def start(self, macros, food, pot, confirm, window, settings, button_func):
+    def start(self, macros, food, pot, confirm, window, settings):
         """ Updates parameters and Begins separate thread for crafting loop """
-        self.update(macros, food, pot, confirm, window, settings, button_func)
-        threading.Thread(target=self.mainloop).start()
+        self.update(macros, food, pot, confirm, window, settings)
+        self.mainloop()
 
     def mainloop(self):
         """ Runs the main crafting loop """
@@ -140,7 +138,6 @@ class Crafter:
 
             loop_time = time.perf_counter()
             self.run_sequence(sequence)
-        self.button_func()
 
 
     def run_sequence(self, sequence):

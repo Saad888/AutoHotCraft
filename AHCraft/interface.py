@@ -1,4 +1,5 @@
 import tkinter as tk
+from hotkey_widget import HotkeyWidget
 
 
 class MainBody:
@@ -192,17 +193,24 @@ class MainBody:
 
 
 class WidgetGroup:
-    def __init__(self, frame, label, style, timer=True, enabler=False, var=None):
+    def __init__(self, frame, label, style, hk_settings=None, timer=True, 
+                 enabler=False, var=None, key_trans=None, focus_toggle=None):
         """
         Groups a label with two entries for the body frame
         
         frame: Frame to center the widgets within
         label: Str, name of the group
         style: dictionary passed from parent caller for text formatting
+        hk_settings: list of dictionaries with default, inacitve, active, and 
+                     enabled display settings
         timer: Bol, if this group has a timer
+        keytranslator: Instance of KeyTranslator
+        focus_toggle: Focus toggler
         """
         self.label = tk.Label(frame, text=label, **style)
-        self.entry_hk = tk.Entry(frame, width=16)
+        self.entry_hk = HotkeyWidget(frame, hk_settings[0], hk_settings[1], 
+                                     hk_settings[2], hk_settings[3], 
+                                     key_trans, focus_toggle)
         self.entry_time = tk.Entry(frame, width=3) if timer else None
         self.enable = tk.Checkbutton(frame, variable=var) if enabler else None
 

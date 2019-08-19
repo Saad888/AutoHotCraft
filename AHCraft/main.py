@@ -6,6 +6,7 @@ from exceptions import AHKExeAccessError
 import tkinter as tk
 from tkinter.messagebox import showwarning
 from tkinter.filedialog import askopenfilename
+import threading
 import json
 import os
 import sys
@@ -18,14 +19,29 @@ class Main:
         self.translator = KeyTranslator()
         self.AHKManager = AHKManager()
         self.crafter = Crafter(self.AHKManager)
-        self.GUI = MainBody(self.script_begin, self.inturrupt_craft)
+        self.GUI = MainBody(self.initiate_craft_thread, self.inturrupt_craft)
+
+
+    def initiate_craft_thread(self, macros, food, pot, confirm, window, 
+                              settings, toggler):
+        """
+        Creates a separate thread to run the script, allowing the UI to function
+        without freezing the app while the script is running.
+        See crafter library for args
+        toggeler is a callback function which will unlock parts of the
+        UI as needed while the craft is happening
+        """
+        print("BEGIN CRAFT")
+        args = (macros, food, pot, confirm, window, settings, toggler)
+        threading.Thread(target=self.script_begin, args=args).start()
 
 
     def script_begin(self, macros, food, pot, confirm, window, 
-                     settings, button_func):
-        print('BEGIN')
-        self.crafter.start(macros, food, pot, confirm, window, settings, 
-                           button_func)
+                     settings, toggler):
+        print('Separate Thread Established')
+        self.crafter.start(macros, food, pot, confirm, window, settings)
+        toggler()
+        
 
     def inturrupt_craft(self):
         print('INTURRUPTED')

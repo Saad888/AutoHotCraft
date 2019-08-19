@@ -5,12 +5,16 @@ class KeyTranslator:
     def __init__(self):
         # Codes in the form [dec] = (display name, AHK code, modifier)
         self.codes = {
+            -1: ("", "", False),
             8: ("BackSpace", "{vk08}", False),
             9: ("Tab", "{vk09}", False),
+            13: ("Enter", "{vk0D}", False),
             16: ("Shift", "+", True),
             17: ("Ctrl", "^", True),
             18: ("Alt", "!", True),
             19: ("Pause", "{vk13}", False),
+            20: ("Caps Lock", "{vk14}", False),
+            27: ("ESC", "{vk1B}", False),
             32: ("Space", "{vk20}", False),
             33: ("Page Up", "{vk21}", False),
             34: ("Page Down", "{vk22}", False),
@@ -99,6 +103,18 @@ class KeyTranslator:
             221: (" ]", "{vkDD}", False),
             222: (" '", "{vkDE}", False)
         }
+        # Translating for numpad inputs
+        self.numpad_keys = {
+            12: 101, 
+            33: 105, 
+            34: 99, 
+            35: 97, 
+            36: 103, 
+            37: 100, 
+            38: 104, 
+            39: 102, 
+            40: 98
+        }
 
     def _key_value_return(self, keycode, index):
         if keycode in self.codes:
@@ -113,4 +129,8 @@ class KeyTranslator:
     def key_mod(self, keycode):
         return self._key_value_return(keycode, 2)
 
-        
+    def keycode(self, keycode, state):
+        """ Translates numpad inputs to be correct """
+        if keycode in self.numpad_keys and state < 0x40000:
+            return self.numpad_keys[keycode]
+        return keycode

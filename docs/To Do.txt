@@ -1,0 +1,53 @@
+
+
+Note for 7/29:
+- We have determined that you can use {vkXX} in AHK to send keyboard commands which 
+are the virtual key code, making life much easier. While tkinter provides the keycodes in 
+decimal, we can conver them to hex(). All we need to do now is to create an easy
+filter for the virtual keys to appear on the display, which can be done via a .csv
+Also filter which vkeys need to be used in the first place
+
+
+Note from 8/16: 
+- ESC is a keybind used in FFXIV, it will need to be set manually, take account for this eventually
+
+
+Current Plan:
+1. Fully verify if the command sending is working
+2. Implement label system for hotkey setup
+3. Implement locking and unlocking of system functions 
+4. Implement profile system
+5. Create proper UI
+
+
+LABEL SYSTEM FOR HOTKEY SETUP:
+
+This will be a label which will contain the visisble text for a existing hotkey.
+Notes about the label:
+1. It must be tab targettable
+2. It must be "activatable"
+3. Pressing "SPACE" or LEFT CLICK while the label is "activated" will allow the user to input
+4. They can also right click on the label to allow user input
+5. Input will be locked the moment the user REMOVES their finger off of a NON MOD
+6. The hotkey must be able to take ALL THREE MODIFIERS
+7. The hotkey will only take ONE regular input
+8. This will all be established via a class
+
+Pnesudocode:
+Class HotkeyLabel:
+    init (translator):
+        hotkey = NONE
+        translator = translator
+        state = 0
+            # State can be:
+            # 0 - Locked input
+            # 1 - Accepting input
+            # State shifts from 0 to 1 when A) label is ACTIVE, B) activate hotkey pressed
+            # Activate hotkeys are LEFT CLICK and SPACE while ACTIVE
+    
+    key_down_event (keycode):
+        if label state is active:
+            
+        mod = translator.mod(keycode)
+        if mod:
+
