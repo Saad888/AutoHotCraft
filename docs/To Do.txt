@@ -13,41 +13,12 @@ Note from 8/16:
 
 
 Current Plan:
-1. Fully verify if the command sending is working
-2. Implement label system for hotkey setup
-3. Implement locking and unlocking of system functions 
+2. Implement label system for hotkey setup    DONE
+3. Implement locking and unlocking of system functions    TO DO 
 4. Implement profile system
 5. Create proper UI
+1. Fully verify if the command sending is working   
 
 
-LABEL SYSTEM FOR HOTKEY SETUP:
-
-This will be a label which will contain the visisble text for a existing hotkey.
-Notes about the label:
-1. It must be tab targettable
-2. It must be "activatable"
-3. Pressing "SPACE" or LEFT CLICK while the label is "activated" will allow the user to input
-4. They can also right click on the label to allow user input
-5. Input will be locked the moment the user REMOVES their finger off of a NON MOD
-6. The hotkey must be able to take ALL THREE MODIFIERS
-7. The hotkey will only take ONE regular input
-8. This will all be established via a class
-
-Pnesudocode:
-Class HotkeyLabel:
-    init (translator):
-        hotkey = NONE
-        translator = translator
-        state = 0
-            # State can be:
-            # 0 - Locked input
-            # 1 - Accepting input
-            # State shifts from 0 to 1 when A) label is ACTIVE, B) activate hotkey pressed
-            # Activate hotkeys are LEFT CLICK and SPACE while ACTIVE
-    
-    key_down_event (keycode):
-        if label state is active:
-            
-        mod = translator.mod(keycode)
-        if mod:
+NOTE: 8/19: Create focus locking system
 

@@ -1,4 +1,4 @@
-from interface import MainBody
+from interface.interface import MainBody
 from key_translator import KeyTranslator
 from crafter import Crafter
 from AHKManager import AHKManager
@@ -19,7 +19,8 @@ class Main:
         self.translator = KeyTranslator()
         self.AHKManager = AHKManager()
         self.crafter = Crafter(self.AHKManager)
-        self.GUI = MainBody(self.initiate_craft_thread, self.inturrupt_craft)
+        self.GUI = MainBody(self.initiate_craft_thread, self.inturrupt_craft,
+                            self.translator)
 
 
     def initiate_craft_thread(self, macros, food, pot, confirm, window, 
@@ -108,4 +109,5 @@ class Main:
 
 if __name__ == "__main__":
     test = Main()
+    print('starting')
     test.initiate()

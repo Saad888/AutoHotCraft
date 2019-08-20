@@ -1,12 +1,16 @@
 import tkinter as tk
-from hotkey_widget import HotkeyWidget
+from .widgets.hotkey_widget import HotkeyWidget
+from .widgets.time_widget import TimeWidget
 
 
 class MainBody:
-    def __init__(self, event_craft, event_inturrupt):
+    def __init__(self, event_craft, event_inturrupt, key_translator):
         self.root = tk.Tk()
         self.root.withdraw()
         
+        # Core Variables
+        self.key_translator = key_translator
+
         # State Variables
         self.button_state = 0  # 0 - Idle, 1 - Crafting, 2 - Finishing sequence
 
@@ -15,14 +19,8 @@ class MainBody:
         self.event_inturrupt = event_inturrupt
 
 
-
     def start(self):
         # Checkbox and instance Variables:
-        self.default_style = {
-            'font': ("Helvetica", 14), 
-            'bg': "purple",
-            'fg': "white"
-        }
         self.root.deiconify()
         self.check_macro_1 = tk.IntVar(self.root)
         self.check_macro_2 = tk.IntVar(self.root)
@@ -31,7 +29,35 @@ class MainBody:
         self.check_pot = tk.IntVar(self.root)
         self.check_collect = tk.IntVar(self.root)
 
+        # Establish all style settings used for widgets
+        self.default_style = {
+            'font': ("Helvetica", 14), 
+            'bg': "purple",
+            'fg': "white"
+        }
+        self.style_hk_default = {
+            'font': ("Helvetica", 14), 
+            'width': 24
+        }
+        self.style_hk_inactive = {"bg": "blue"}
+        self.style_hk_active = {"bg": "red"}
+        self.style_hk_enabled = {"bg": "yellow"}
+        self.styles_hk = (self.style_hk_default, self.style_hk_inactive, 
+                          self.style_hk_active, self.style_hk_enabled)
+        self.style_timer_default = {
+            'font': ("Helvetica", 14), 
+            'width': 2
+        }
+        self.style_timer_inactive = {"bg": "blue"}
+        self.style_timer_active = {"bg": "red"}
+        self.styles_timer = (self.style_timer_default, 
+                             self.style_timer_inactive, 
+                             self.style_timer_active)
+
+
         # Create all body components and launch the main loop
+
+        # Frames
         self.fr_title = tk.Frame(self.root)  # Frame for title
         self.fr_selection = tk.Frame(self.root)  # Frame for profiles (EMPTY)
         self.fr_body = tk.Frame(self.root, bg='purple')  # Frame for macros and hotkeys
@@ -60,30 +86,40 @@ class MainBody:
         bdy_lbl_time = tk.Label(self.fr_body, text="Time", **self.default_style)
 
         # Bodies
-        self.body = (
-            WidgetGroup(self.fr_body, "Macro 1", self.default_style, 
-                        enabler=True, var=self.check_macro_1),
-            WidgetGroup(self.fr_body, "Macro 2", self.default_style, 
-                        enabler=True, var=self.check_macro_2),
-            WidgetGroup(self.fr_body, "Macro 3", self.default_style, 
-                        enabler=True, var=self.check_macro_3),
-            WidgetGroup(self.fr_body, "Food", self.default_style, 
-                        enabler=True, var=self.check_food),
-            WidgetGroup(self.fr_body, "Potion", self.default_style, 
-                        enabler=True, var=self.check_pot),
-            WidgetGroup(self.fr_body, "Craft Window", self.default_style, 
-                        False),
-            WidgetGroup(self.fr_body, "Select/Confirm", self.default_style, 
-                        False)
-        )
+
+        # tuple containing order of body content
+        self.body_order = ('Macro 1', 'Macro 2', 'Macro 3', 'Food', 'Potion', 
+                           'Craft Window', 'Select/Confirm')  
+        kwargs = {
+            'frame': self.fr_body,
+            'style': self.default_style,
+            'hk_settings': self.styles_hk,
+            'timer_settings': self.styles_timer,
+            'key_trans': self.key_translator, 
+            'focus_toggle': self.focus_toggle
+        }
+        self.body = {
+            'Macro 1': WidgetGroup(label="Macro 1", var=self.check_macro_1, 
+                                   **kwargs), 
+            'Macro 2': WidgetGroup(label="Macro 2", var=self.check_macro_1, 
+                                   **kwargs), 
+            'Macro 3': WidgetGroup(label="Macro 3", var=self.check_macro_1, 
+                                   **kwargs), 
+            'Food': WidgetGroup(label="Food", var=self.check_food, **kwargs), 
+            'Potion': WidgetGroup(label="Potion", var=self.check_pot, **kwargs),
+            'Craft Window': WidgetGroup(label="Craft Window", enabler=False, 
+                                        timer=False, **kwargs),
+            'Select/Confirm': WidgetGroup(label="Select/Confirm", enabler=False,
+                                          timer=False, **kwargs)
+        }
 
         # *** Render Widgets ***
         self.render(bdy_lbl_name, row=0, col=0)
         self.render(bdy_lbl_hk, row=0, col=1, colspan=3)
         self.render(bdy_lbl_time, row=0, col=4)
-        for index, group in enumerate(self.body):
+        for index, group in enumerate(self.body_order):
             row = index + 1
-            group.render_all(row=row)
+            self.body[group].render_all(row=row)
         
 
         # ********* Footer *********
@@ -124,6 +160,11 @@ class MainBody:
         self.fr_body.pack(side=tk.TOP, fill=tk.X)
         self.fr_footer.pack(side=tk.TOP, fill=tk.X)
         self.root.mainloop()
+
+
+    def focus_toggle(self, state):
+        """ Toggles tab focus shifting """
+        pass
 
 
     def render(self, widget, row=0, col=0, colspan=1, rowspan=1, 
@@ -193,8 +234,9 @@ class MainBody:
 
 
 class WidgetGroup:
-    def __init__(self, frame, label, style, hk_settings=None, timer=True, 
-                 enabler=False, var=None, key_trans=None, focus_toggle=None):
+    def __init__(self, frame=None, label='', style=None, hk_settings=None, 
+                 timer=True, timer_settings=None, enabler=True, var=None, 
+                 key_trans=None, focus_toggle=None):
         """
         Groups a label with two entries for the body frame
         
@@ -211,7 +253,11 @@ class WidgetGroup:
         self.entry_hk = HotkeyWidget(frame, hk_settings[0], hk_settings[1], 
                                      hk_settings[2], hk_settings[3], 
                                      key_trans, focus_toggle)
-        self.entry_time = tk.Entry(frame, width=3) if timer else None
+        if timer:
+            self.entry_time = TimeWidget(frame, timer_settings[0], 
+                                         timer_settings[1], timer_settings[2])
+        else:
+            self.entry_time = None
         self.enable = tk.Checkbutton(frame, variable=var) if enabler else None
 
     def render_all(self, row):
@@ -231,5 +277,8 @@ class WidgetGroup:
         
 
 if __name__ == '__main__':
+    """
     test = MainBody()
     test.start()
+    """
+    print('import loaded')

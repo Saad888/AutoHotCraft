@@ -1,6 +1,5 @@
 """ Widget for hotkey inputs """
 import tkinter as tk
-from key_translator import KeyTranslator
 
 
 class HotkeyWidget:
@@ -26,12 +25,7 @@ class HotkeyWidget:
         # System variables
         self.input_enabled = False  # When input is enabled
         self._default_inputs()
-
-        # Saves existing KeyTranslator if it exists, else create new instance
-        if key_translator:
-            self.key_translator = key_translator
-        else:
-            self.key_translator = KeyTranslator()
+        self.key_translator = key_translator
 
         # Saves callback function for toggling system focus
         # This function should be provided from the interface class
@@ -117,6 +111,7 @@ class HotkeyWidget:
         Does nothing if input is enabled
         """
         if self.input_enabled:
+            self.disable_input()
             return
         
         verify_focus = event.widget.focus_get() == self.widget
@@ -132,7 +127,13 @@ class HotkeyWidget:
         If not enabled, set to enable when <Space> is pressed
         If enabled, set the hotkey accordingly
         """
-        keycode = self.key_translator.keycode(event.keycode, event.state)
+        if not isinstance(event, int):
+            keycode = self.key_translator.keycode(event.keycode, event.state)
+            if keycode != event.keycode:
+                self.handle_keydown(16)
+        else:
+            keycode = event
+            
         if self.input_enabled is True:
             if self.key_translator.key_mod(keycode) is True:
                 if keycode not in self.active_keys['mods']:
@@ -148,7 +149,16 @@ class HotkeyWidget:
         If key up is a mod, remove modifier
         If key up is non mod, disbale key input
         """
+        """
+        if not isinstance(event, int):
+            
+            if keycode != event.keycode:
+                self.handle_keyup(16)
+        else:
+            keycode = event
+        """
         keycode = self.key_translator.keycode(event.keycode, event.state)
+
         if self.input_enabled is True:
             if keycode in self.active_keys['mods']:
                 self.active_keys['mods'].remove(keycode)

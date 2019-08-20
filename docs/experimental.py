@@ -79,6 +79,7 @@ def testtab(event):
 
 def textbind(event):
     keycode = event.keycode
+    """
     state = event.state
     numpad_keys = {
         12: 101, 
@@ -93,7 +94,8 @@ def textbind(event):
     }
     if keycode in numpad_keys and state < 0x40000:
         keycode = numpad_keys[keycode]
-    print(keycode)
+    """
+    print(event)
 
 
 # text.bind("<KeyPress>", textbind)
