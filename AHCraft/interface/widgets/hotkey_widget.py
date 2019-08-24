@@ -45,12 +45,20 @@ class HotkeyWidget:
         """ Renders widget in pack, for debugging purposes only """
         self.widget.pack()
 
+    def set_hotkey(self, key, mods):
+        self.active_keys = {'mods': mods, 'key': key}
+        self.render_text()
+
     def grid(self, **kwargs):
         """ Renders widget on provided master using grid"""
         self.widget.grid(**kwargs)
 
     def get_ahk_code(self):
         """ Returns ahk command """
+        if self.active_keys['key'] == -1:
+            self._default_inputs()
+            self.render_text()
+            return ''
         code = ''
         for mod in self.active_keys['mods']:
             code += self.key_translator.key_ahk(mod)
@@ -77,12 +85,10 @@ class HotkeyWidget:
         self.toggle_input(True, self.enabled_settings)
         self._default_inputs()
         self.render_text()
-        print('Input Enabled')
 
     def disable_input(self):
         """ Disables hotkey input and enables window focus shifting """
         self.toggle_input(False, self.active_settings)
-        print('Input Disabled')
 
     def event_binder(self):
         self.widget.bind('<FocusIn>', self.handle_focus_in)
@@ -94,14 +100,12 @@ class HotkeyWidget:
     def handle_focus_in(self, event):
         """ Handles widget taking focus"""
         self.widget.config(**self.active_settings)
-        print('Focused In')
 
     def handle_focus_out(self, event):
         """ Return label to default state """
         if self.input_enabled:
             self.disable_input()
         self.widget.config(**self.inactive_settings)
-        print('Focused Out')
 
     def handle_click(self, event):
         """
@@ -119,7 +123,6 @@ class HotkeyWidget:
             self.enable_input()
         else:
             self.widget.focus_set()
-        print('Clicked')
 
     def handle_keydown(self, event):
         """
@@ -141,6 +144,10 @@ class HotkeyWidget:
             else:
                 self.active_keys['key'] = keycode
             self.render_text()
+        if self.input_enabled is False:
+            if event.keycode in (8, 46):
+                self._default_inputs()
+                self.render_text()
 
     def handle_keyup(self, event):
         """
@@ -168,7 +175,6 @@ class HotkeyWidget:
         else:
             if keycode == 32:
                 self.enable_input()
-        print('Released')
         
 
 

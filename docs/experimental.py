@@ -159,6 +159,21 @@ labelframe2.pack()
 
 
 
+lis = Listbox(root)
+lis.pack()
+lis.insert(END, 'a list entry')
+
+for item in ["one", "two", "three", "four"]:
+    lis.insert(END, item)
+
+
+
+varri = StringVar(root)
+varri.set("one")  # initial value
+
+option = OptionMenu(root, varri, "one", "two", "three", "four")
+option.pack()
+
 # Run the loop
 # All GUI applications need to be continuously on your screen
 # Does this via infinite loop, this will keep the GUI running

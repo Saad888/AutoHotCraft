@@ -10,24 +10,12 @@ class Crafter:
         # Parameters for system 
         self.user_inturrupt = False
         self.script = AHKObj
-
-        # Parameters for hotkeys and timers
-        self.macros = []  # Tuple with command + time (str, int)
-        self.food_timer = 30  # Default
-        self.food_remains = 0
-        self.pot_timer = 15
-        self.pot_remains = 0
-        self.hk_food = None
-        self.hk_pot = None
-        self.hk_confirm = None
-
-        # User Settings:
-        self.use_food = False
-        self.use_pot = False
-        self.use_collect = False
+    
 
 
-    def update(self, macros, food, pot, confirm, window, settings):
+
+    def update(self, macros, food, pot, confirm, window, escape, settings, 
+               UIUpdate):
         """ Update all keybinds internally 
         macros: list of tuple (hotkey: str, timer: int)
         food: tuple (hotkey: str, remaining: int, timer: int)
@@ -36,6 +24,7 @@ class Crafter:
         window: str with crafting window hotkey  
         settings: Tuple of three Bol values:
             (use_food, use_pot, use_collect)
+        UIUpdate: Callback function to place message on UI
         """
         self.macros = macros
         self.use_food, self.use_pot, self.use_collect = settings
@@ -46,9 +35,11 @@ class Crafter:
 
         self.hk_pot = pot[0] if self.use_pot else None
         self.pot_remains = pot[1] if self.use_pot else None
+        self.pot_timer = 15
 
         self.hk_craft = window
         self.hk_confirm = confirm
+        self.hk_escape = escape
 
         
         # Sequences Update:
@@ -71,7 +62,7 @@ class Crafter:
 
         # Exit Craft (from crafting window)
         self.sq_exit_craft = [
-            ('ESC', 2)
+            (self.hk_escape, 2)
         ]
 
         # Food and pots
@@ -87,10 +78,12 @@ class Crafter:
             (self.hk_confirm, 3)
         ]
 
+        self.UI_update = UIUpdate
 
-    def start(self, macros, food, pot, confirm, window, settings):
+
+    def start(self, args):
         """ Updates parameters and Begins separate thread for crafting loop """
-        self.update(macros, food, pot, confirm, window, settings)
+        self.update(*args)
         self.mainloop()
 
     def mainloop(self):
@@ -111,18 +104,22 @@ class Crafter:
             sequence = []
             sequence += self.macros  # Add crafting macros to sequence
             sequence += self.sq_end_craft
-            print('Beginning next sequence')
+            UI_text = "Cycling next craft ...\n"
 
             # Sets food timers
             # If food or pots need to be refreshed, do so, else start next craft
             if self.use_food:
                 food_remains -= (time.perf_counter() - loop_time)
                 refresh_food = food_remains - (macro_time + 15) < 60
-                print(f'Food: {food_remains:0.2f} | Refresh Food: {refresh_food}')
+                UI_text += f'Food: {food_remains / 60:0.2f}min'
+                UI_text += ', refreshing after craft' if refresh_food else ''
+                UI_text += '\n'
             if self.use_pot:
                 pot_remains -= (time.perf_counter() - loop_time)
                 refresh_pot = pot_remains - (macro_time + 15) < 60
-                print(f'Pot: {pot_remains:0.2f} | Refresh Pot: {refresh_pot}')
+                UI_text += f'Pot: {pot_remains / 60:0.2f}min'
+                UI_text += ', refreshing after craft' if refresh_pot else ''
+                UI_text += '\n'
             
             if refresh_food or refresh_pot:
                 sequence += self.sq_exit_craft
@@ -137,11 +134,12 @@ class Crafter:
                 sequence += self.sq_begin_craft
 
             loop_time = time.perf_counter()
+            self.UI_update(UI_text)
             self.run_sequence(sequence)
 
 
     def run_sequence(self, sequence):
-        """ Runs the sequence, provided in a list in the form (hotkey, timer) """
+        """ Runs the sequence, provided in a list in the form (hotkey, timer)"""
         for hotkey, wait in sequence:
             print(f'Execute {hotkey} with delay {wait}s')
             self.script.execute(hotkey)

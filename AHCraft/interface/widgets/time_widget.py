@@ -11,7 +11,8 @@ class TimeWidget:
             master, 
             takefocus=True, 
             **default_settings, 
-            **inactive_settings
+            **inactive_settings, 
+            text='0'
         )
         self.event_binder()
 
@@ -70,7 +71,7 @@ class TimeWidget:
             if len(self.timer) == 2:
                 self.timer = self.timer[1:]
             self.timer += event.char
-        elif event.keysym in ('BackSpace, Delete'):
+        elif event.keycode in (8, 46):
             self.timer = '0'
 
         self.render_text()

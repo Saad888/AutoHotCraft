@@ -23,8 +23,7 @@ class Main:
                             self.translator)
 
 
-    def initiate_craft_thread(self, macros, food, pot, confirm, window, 
-                              settings, toggler):
+    def initiate_craft_thread(self, *args):
         """
         Creates a separate thread to run the script, allowing the UI to function
         without freezing the app while the script is running.
@@ -33,14 +32,12 @@ class Main:
         UI as needed while the craft is happening
         """
         print("BEGIN CRAFT")
-        args = (macros, food, pot, confirm, window, settings, toggler)
         threading.Thread(target=self.script_begin, args=args).start()
 
 
-    def script_begin(self, macros, food, pot, confirm, window, 
-                     settings, toggler):
+    def script_begin(self, toggler, args):
         print('Separate Thread Established')
-        self.crafter.start(macros, food, pot, confirm, window, settings)
+        self.crafter.start(args)
         toggler()
         
 
