@@ -23,6 +23,7 @@ class TimeWidget:
 
         # System variables
         self.timer = '0'
+        self.volatile = False
 
     def get_time(self):
         return int(self.timer)
@@ -54,6 +55,7 @@ class TimeWidget:
     def handle_focus_in(self, event):
         """ Handles widget taking focus"""
         self.widget.config(**self.active_settings)
+        self.volatile = True
 
     def handle_focus_out(self, event):
         """ Return label to default state """
@@ -72,6 +74,9 @@ class TimeWidget:
         If enabled, set the timer accordingly
         """
         if event.char in ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'):
+            if self.volatile:
+                self.timer = '0'
+                self.volatile = False
             if len(self.timer) == 2:
                 self.timer = self.timer[1:]
             self.timer += event.char

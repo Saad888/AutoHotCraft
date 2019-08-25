@@ -275,10 +275,8 @@ class MainBody:
     def handler_save_profile(self):
         """ Save current profile """
         name = tk.simpledialog.askstring("Save Profile", "Save profile name")
-        if name not in self.profiles:
+        if name != '':
             self.save_profile(name)
-        elif name != '':
-            showerror(title="Duplicate", message=f"{name} already exists!")
 
 
     def handler_del_profile(self):

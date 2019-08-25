@@ -57,14 +57,14 @@ class Crafter:
         self.sq_begin_craft = [
             (self.hk_confirm, 1), 
             (self.hk_confirm, 1), 
-            (self.hk_confirm, 3)
+            (self.hk_confirm, 2)
         ]
 
         # End Craft (from end of craft)
         self.sq_end_craft = []
         if self.use_collect:
             self.sq_end_craft.append((confirm, 1))
-            self.sq_end_craft.append((confirm, 1))
+        self.sq_end_craft.append((confirm, 3))
 
         # Exit Craft (from crafting window)
         self.sq_exit_craft = [
@@ -72,8 +72,8 @@ class Crafter:
         ]
 
         # Food and pots
-        self.sq_food = [(self.hk_food, 2)]
-        self.sq_pot = [(self.hk_pot, 2)]
+        self.sq_food = [(self.hk_food, 4)]
+        self.sq_pot = [(self.hk_pot, 3)]
 
         # Restart Craft
         self.sq_restart_craft = [
@@ -81,7 +81,7 @@ class Crafter:
             (self.hk_confirm, 1), 
             (self.hk_confirm, 1), 
             (self.hk_confirm, 1), 
-            (self.hk_confirm, 3)
+            (self.hk_confirm, 2)
         ]
 
         self.UI_update = UIUpdate

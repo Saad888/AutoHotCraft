@@ -6,6 +6,7 @@ from exceptions import AHKExeAccessError
 import tkinter as tk
 from tkinter.messagebox import showwarning
 from tkinter.filedialog import askopenfilename
+import traceback
 import threading
 import json
 import os
@@ -38,8 +39,12 @@ class Main:
 
     def script_begin(self, toggler, args):
         print('Separate Thread Established')
-        self.crafter.start(args)
-        toggler()
+        try:
+            self.crafter.start(args)
+        except Exception:
+            traceback.print_exc()
+        finally:
+            toggler()
         
 
     def inturrupt_craft(self):

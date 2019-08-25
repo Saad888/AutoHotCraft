@@ -61,8 +61,10 @@ class HotkeyWidget:
             return ''
         code = ''
         for mod in self.active_keys['mods']:
-            code += self.key_translator.key_ahk(mod)
+            code += self.key_translator.key_ahk(mod) + "down}"
         code += self.key_translator.key_ahk(self.active_keys['key'])
+        for mod in self.active_keys['mods']:
+            code += self.key_translator.key_ahk(mod) + "up}"
         return code
 
     def render_text(self):
@@ -130,12 +132,7 @@ class HotkeyWidget:
         If not enabled, set to enable when <Space> is pressed
         If enabled, set the hotkey accordingly
         """
-        if not isinstance(event, int):
-            keycode = self.key_translator.keycode(event.keycode, event.state)
-            if keycode != event.keycode:
-                self.handle_keydown(16)
-        else:
-            keycode = event
+        keycode = event.keycode
             
         if self.input_enabled is True:
             if self.key_translator.key_mod(keycode) is True:
@@ -164,7 +161,7 @@ class HotkeyWidget:
         else:
             keycode = event
         """
-        keycode = self.key_translator.keycode(event.keycode, event.state)
+        keycode = event.keycode
 
         if self.input_enabled is True:
             if keycode in self.active_keys['mods']:

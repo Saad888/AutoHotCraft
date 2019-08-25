@@ -17,8 +17,8 @@ class AHKManager:
         See AHK documentation for more detail
         """
 
-        cmd = f'{self.path} AHCScript.ahk {hotkey}'
-
+        cmd = f'"{self.path}" AHCScript.ahk "{hotkey}"'
+        print(cmd)
         # Run the script passing the hotkey as a parameter, verifies files
         try:
             result = subprocess.run(cmd, 
@@ -27,7 +27,7 @@ class AHKManager:
         except FileNotFoundError:
             # If error, checks if AHCScript is missing
             try:
-                check_file = file.open('AHCScript.ahk')
+                check_file = open('AHCScript.ahk')
                 check_file.close()
             except FileNotFoundError:
                 raise exceptions.AHKScriptMissingError
@@ -48,7 +48,7 @@ class AHKManager:
         script = [
             '; Do NOT modify this script. If you did, restart AutoHotCraft.exe\n'
             '#NoEnv\n', '#ErrorStdOut\n', 'SendMode Input\n', 
-            'WinGet, programid, List, Untitled - Notepad\n', 
+            'WinGet, programid, List, FINAL FANTASY XIV\n', 
             'if A_Args.Length() > 0\n', '{\n', 
             'ControlSend,, %1%, ahk_id %programid1%\n', '}\n'
             'FileAppend, %programid1%, *\n'

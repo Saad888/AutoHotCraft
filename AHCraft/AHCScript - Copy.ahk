@@ -3,8 +3,5 @@
 #ErrorStdOut
 SendMode Input
 WinGet, programid, List, FINAL FANTASY XIV
-if A_Args.Length() > 0
-{
-ControlSend,, %1%, ahk_id %programid1%
-}
-FileAppend, %programid1%, *
+Sleep 2000
+ControlSend,, {Shift down}{vk31}{Shift up}, ahk_id %programid1%
