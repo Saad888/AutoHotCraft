@@ -1,15 +1,12 @@
 Final stuff to do:
 
-0. Create help button to explain what to do
-1. Various UI checks to ensure functionality is correct
- - Create system to automatically load the previous profile 
-2. Redesign UI and colors to look better
 3. If time add a proper logo
-4. Create an icon and change window name   
-5. Lock the UI so it cannot be resized
-6. Add option to always keep on top?
 7. Compile exe
 8. Complete readme
 9. Sign exe
 10. Final debugging
 11. Send for release
+
+Known issues:
+- Some key commands can get inturrupted when using the keyboard on other applications
+- Shift + num keys has odd interactions

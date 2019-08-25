@@ -1,8 +1,10 @@
 import tkinter as tk
 from tkinter.messagebox import showerror
+from tkinter.messagebox import showinfo
 from tkinter.simpledialog import SimpleDialog
 from .widgets.hotkey_widget import HotkeyWidget
 from .widgets.time_widget import TimeWidget
+from .help_text import help_text
 
 
 
@@ -10,6 +12,9 @@ class MainBody:
     def __init__(self, event_craft, event_inturrupt, key_translator, config_rw):
         self.root = tk.Tk()
         self.root.withdraw()
+        self.root.title('AutoHotCraft')
+        self.root.tk.call('wm', 'iconphoto', self.root._w, 
+                          tk.PhotoImage(file='Images\Rapid_Synthesis.png'))
         
         # Core Variables
         self.key_translator = key_translator
@@ -37,11 +42,15 @@ class MainBody:
         self.profile = tk.StringVar(self.root)
 
         # Establish all style settings used for widgets
-        background_color = 'purple'
-        foreground_color = 'white'
-        color_inactive = '#2200FF'
-        color_active = '#626DFF'
-        color_enabled = '#FFFF66'
+        background_color = '#320E3B'
+        background_darker = '#0F0512'
+        foreground_color = '#EEEEFF'
+        color_inactive = '#EEEEFF'
+        color_active = '#9FB4C7'
+        color_enabled = '#F0C987'
+        color_button = '#290C31'
+        color_button_text = foreground_color
+        color_button_pressed = '#0F0512'
 
         self.default_style = {
             'font': ("Helvetica", 14), 
@@ -76,10 +85,16 @@ class MainBody:
         self.styles_timer = (self.style_timer_default, 
                              self.style_timer_inactive, 
                              self.style_timer_active)
-        self.style_button = {'bg': "blue", 'fg': "yellow"}
+        self.style_button = {
+            'bg': color_button, 
+            'fg': color_button_text, 
+            'activebackground': color_button_pressed, 
+            'activeforeground': color_button_text,
+            'width': 10
+        }
         self.style_status_text = {
             'font': ("Helvetica", 10), 
-            'bg': "red",
+            'bg': background_darker,
             'fg': foreground_color, 
             'justify': 'left', 
             'anchor': tk.NW, 
@@ -164,7 +179,7 @@ class MainBody:
         # ********* Footer *********
         # *** Create Widgets ***
         self.start_btn = tk.Button(self.fr_footer, text="BEGIN", 
-                                   **self.style_button, width=10, height=3,
+                                   **self.style_button, height=3,
                                    command=self.handler_start_button)
         self.widget_focus.append(self.start_btn)
 
@@ -188,13 +203,15 @@ class MainBody:
 
         self.btn_save_profile = tk.Button(self.fr_footer, text='Save Profile', 
                                           command=self.handler_save_profile,
-                                          **self.style_button, width=10)
+                                          **self.style_button)
         self.btn_load_profile = tk.Button(self.fr_footer, text='Load Profile', 
                                           command=self.handler_load_profile,
-                                          **self.style_button, width=10)
+                                          **self.style_button)
         self.btn_del_profile = tk.Button(self.fr_footer, text='Delete Profile', 
                                          command=self.handler_del_profile,
-                                         **self.style_button, width=10)
+                                         **self.style_button,)
+        self.btn_help = tk.Button(self.fr_footer, text='Help', 
+                                  command=self.handler_help, **self.style_button)
         
         # Profile
         self.profile_select = tk.OptionMenu(self.fr_footer, self.profile, 
@@ -203,7 +220,10 @@ class MainBody:
             label="A", command=tk._setit(self.profile, 'A')
         )
         self.profile_select["highlightthickness"] = 0
-        self.profile_select.config(**self.default_style_lab, width=13)
+        profile_configs = self.style_button
+        profile_configs['width'] = 18
+
+        self.profile_select.config(**profile_configs)
         self.widget_focus.append(self.profile_select)
 
 
@@ -236,13 +256,11 @@ class MainBody:
         self.render(self.check_button_collect, col=2, sticky=tk.W)
         self.render(self.check_button_label, col=2, padx=25)
         self.render(self.profile_select, row=2, col=2, colspan=2)
-        self.render(self.btn_save_profile, col=3)
-        self.render(self.btn_load_profile, row=2, col=3)
-        self.render(self.btn_del_profile, row=2, col=4)
+        self.render(self.btn_save_profile, col=3, padx=0)
+        self.render(self.btn_load_profile, row=2, col=3, padx=0)
+        self.render(self.btn_del_profile, row=2, col=4, padx=0)
+        self.render(self.btn_help, col=4, padx=0)
         self.render(self.body_label_status, row=3, colspan=7)
-
-        # Assign Events
-
 
         # Start root:
         self.get_profiles()
@@ -250,6 +268,13 @@ class MainBody:
         self.fr_title.pack(side=tk.TOP, fill=tk.X)
         self.fr_body.pack(side=tk.TOP, fill=tk.X)
         self.fr_footer.pack(side=tk.TOP, fill=tk.X)
+
+        self.root.update()
+        x_size = self.root.winfo_width()
+        y_size = self.root.winfo_height()
+        self.root.maxsize(x_size, y_size)
+        self.root.minsize(x_size, y_size)
+
         self.root.mainloop()
 
 
@@ -264,6 +289,10 @@ class MainBody:
         """Simple method to make rendering easier"""
         widget.grid(row=row, column=col, columnspan=colspan, 
                     padx=padx, pady=pady, rowspan=rowspan, sticky=sticky)
+
+    def handler_help(self):
+        """ Opens help window """
+        showinfo(title="Help", message=help_text)
 
 
     def handler_load_profile(self):
