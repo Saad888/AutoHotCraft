@@ -12,8 +12,6 @@ class Crafter:
         self.script = AHKObj
     
 
-
-
     def update(self, macros, food, pot, confirm, window, escape, settings, 
                UIUpdate):
         """ Update all keybinds internally 
@@ -26,6 +24,14 @@ class Crafter:
             (use_food, use_pot, use_collect)
         UIUpdate: Callback function to place message on UI
         """
+
+        # Counters:
+        self.craft_count = 1
+        self.total_time = 0
+        self.food_used = 0
+        self.pots_used = 0
+
+
         self.macros = macros
         self.use_food, self.use_pot, self.use_collect = settings
 
@@ -89,6 +95,7 @@ class Crafter:
     def mainloop(self):
         """ Runs the main crafting loop """
         loop_time = time.perf_counter()
+        loop_start = loop_time
         self.user_inturrupt = False
 
         food_remains = self.food_remains * 60 if self.use_food else None
@@ -104,20 +111,20 @@ class Crafter:
             sequence = []
             sequence += self.macros  # Add crafting macros to sequence
             sequence += self.sq_end_craft
-            UI_text = "Cycling next craft ...\n"
+            UI_text = f"Craft number {self.craft_count} ...\n"
 
             # Sets food timers
             # If food or pots need to be refreshed, do so, else start next craft
             if self.use_food:
                 food_remains -= (time.perf_counter() - loop_time)
                 refresh_food = food_remains - (macro_time + 15) < 60
-                UI_text += f'Food: {food_remains / 60:0.2f}min'
+                UI_text += f'Food: ~{food_remains / 60:0.2f} min remains'
                 UI_text += ', refreshing after craft' if refresh_food else ''
                 UI_text += '\n'
             if self.use_pot:
                 pot_remains -= (time.perf_counter() - loop_time)
                 refresh_pot = pot_remains - (macro_time + 15) < 60
-                UI_text += f'Pot: {pot_remains / 60:0.2f}min'
+                UI_text += f'Pot: ~{pot_remains / 60:0.2f} min remains'
                 UI_text += ', refreshing after craft' if refresh_pot else ''
                 UI_text += '\n'
             
@@ -136,6 +143,24 @@ class Crafter:
             loop_time = time.perf_counter()
             self.UI_update(UI_text)
             self.run_sequence(sequence)
+
+
+            self.total_time = time.perf_counter() - loop_start
+            if self.user_inturrupt is False: 
+                self.craft_count += 1
+                self.food_used += 1 if refresh_food else 0
+                self.pots_used += 1 if refresh_pot else 0
+            if self.user_inturrupt is True:
+                mins = int(self.total_time / 60)
+                secs = int(self.total_time - (mins * 60))
+                UI_text = f"{self.craft_count} crafts complete "
+                UI_text += f"in {mins}:{secs:02d} minutes\n"
+                if self.use_food:
+                    UI_text += f"{self.food_used} food consumed\n"
+                if self.use_pot:
+                    UI_text += f"{self.pots_used} pots consumed\n"
+                self.UI_update(UI_text)
+
 
 
     def run_sequence(self, sequence):

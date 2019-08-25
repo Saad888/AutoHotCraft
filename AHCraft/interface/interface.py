@@ -1,16 +1,19 @@
 import tkinter as tk
 from tkinter.messagebox import showerror
+from tkinter.simpledialog import SimpleDialog
 from .widgets.hotkey_widget import HotkeyWidget
 from .widgets.time_widget import TimeWidget
 
 
+
 class MainBody:
-    def __init__(self, event_craft, event_inturrupt, key_translator):
+    def __init__(self, event_craft, event_inturrupt, key_translator, config_rw):
         self.root = tk.Tk()
         self.root.withdraw()
         
         # Core Variables
         self.key_translator = key_translator
+        self.config_rw = config_rw
 
         # State Variables
         self.button_state = 0  # 0 - Idle, 1 - Crafting, 2 - Finishing sequence
@@ -73,8 +76,16 @@ class MainBody:
         self.styles_timer = (self.style_timer_default, 
                              self.style_timer_inactive, 
                              self.style_timer_active)
-
-
+        self.style_button = {'bg': "blue", 'fg': "yellow"}
+        self.style_status_text = {
+            'font': ("Helvetica", 10), 
+            'bg': "red",
+            'fg': foreground_color, 
+            'justify': 'left', 
+            'anchor': tk.NW, 
+            'width': 64, 
+            'height': 3
+        }
         # Create all body components and launch the main loop
 
         # Frames
@@ -108,9 +119,7 @@ class MainBody:
 
         # Bodies
 
-        # tuple containing order of body content
-        self.body_order = ('Macro 1', 'Macro 2', 'Macro 3', 'Food', 'Potion', 
-                           'Craft Window', 'Select/Confirm', 'Exit Menus')  
+        # tuple containing order of body content 
         kwargs = {
             'frame': self.fr_body,
             'style': self.default_style,
@@ -136,8 +145,6 @@ class MainBody:
             'Exit Menus': WidgetGroup(label="Exit Menus", enabler=False, 
                                       timer=False, **kwargs)
         }
-        self.body['Exit Menus'].entry_hk.set_hotkey(27, [])
-
         for group in self.body.values():
             self.widget_focus.append(group.entry_hk.widget)
             if group.entry_time:
@@ -145,19 +152,19 @@ class MainBody:
             if group.enable:
                 self.widget_focus.append(group.enable)
 
+
         # *** Render Widgets ***
         self.render(bdy_lbl_name, row=0, col=0)
         self.render(bdy_lbl_hk, row=0, col=1, colspan=3)
         self.render(bdy_lbl_time, row=0, col=4, colspan=3)
-        for index, group in enumerate(self.body_order):
+        for index, group in enumerate(self.body):
             row = index + 1
             self.body[group].render_all(row=row)
-        
 
         # ********* Footer *********
         # *** Create Widgets ***
         self.start_btn = tk.Button(self.fr_footer, text="BEGIN", 
-                                   bg="blue", fg="yellow", width=10, height=3,
+                                   **self.style_button, width=10, height=3,
                                    command=self.handler_start_button)
         self.widget_focus.append(self.start_btn)
 
@@ -179,6 +186,16 @@ class MainBody:
             tk.Label(self.fr_footer, text="40 min", **self.default_style_lab)
         ]
 
+        self.btn_save_profile = tk.Button(self.fr_footer, text='Save Profile', 
+                                          command=self.handler_save_profile,
+                                          **self.style_button, width=10)
+        self.btn_load_profile = tk.Button(self.fr_footer, text='Load Profile', 
+                                          command=self.handler_load_profile,
+                                          **self.style_button, width=10)
+        self.btn_del_profile = tk.Button(self.fr_footer, text='Delete Profile', 
+                                         command=self.handler_del_profile,
+                                         **self.style_button, width=10)
+        
         # Profile
         self.profile_select = tk.OptionMenu(self.fr_footer, self.profile, 
                                             "Select a Profile")
@@ -186,7 +203,7 @@ class MainBody:
             label="A", command=tk._setit(self.profile, 'A')
         )
         self.profile_select["highlightthickness"] = 0
-        self.profile_select.config(**self.default_style_lab)
+        self.profile_select.config(**self.default_style_lab, width=13)
         self.widget_focus.append(self.profile_select)
 
 
@@ -202,6 +219,14 @@ class MainBody:
             **self.default_style_lab
         )
         
+        self.status_text = tk.StringVar()
+        self.body_label_status = tk.Label(
+            self.fr_footer, 
+            textvariable=self.status_text, 
+            **self.style_status_text
+        )
+        self.status_text.set('Waiting to start')
+
         # *** Render Widgets ***
         self.render(self.start_btn, rowspan=3)
         self.render(self.food_radio[0], col=1,)
@@ -210,13 +235,18 @@ class MainBody:
         self.render(self.food_radio_label[1], col=1, padx=22, row=2, sticky=tk.W)
         self.render(self.check_button_collect, col=2, sticky=tk.W)
         self.render(self.check_button_label, col=2, padx=25)
-        self.render(self.profile_select, col=3, colspan=2, padx=0)
-
+        self.render(self.profile_select, row=2, col=2, colspan=2)
+        self.render(self.btn_save_profile, col=3)
+        self.render(self.btn_load_profile, row=2, col=3)
+        self.render(self.btn_del_profile, row=2, col=4)
+        self.render(self.body_label_status, row=3, colspan=7)
 
         # Assign Events
 
 
         # Start root:
+        self.get_profiles()
+        self.load_profile("Default")
         self.fr_title.pack(side=tk.TOP, fill=tk.X)
         self.fr_body.pack(side=tk.TOP, fill=tk.X)
         self.fr_footer.pack(side=tk.TOP, fill=tk.X)
@@ -236,6 +266,27 @@ class MainBody:
                     padx=padx, pady=pady, rowspan=rowspan, sticky=sticky)
 
 
+    def handler_load_profile(self):
+        """ Load selected profile """
+        profile_name = self.profile.get()
+        self.load_profile(profile_name)
+
+
+    def handler_save_profile(self):
+        """ Save current profile """
+        name = tk.simpledialog.askstring("Save Profile", "Save profile name")
+        if name not in self.profiles:
+            self.save_profile(name)
+        elif name != '':
+            showerror(title="Duplicate", message=f"{name} already exists!")
+
+
+    def handler_del_profile(self):
+        """ Deletes selected profile """
+        name = self.profile.get()
+        self.delete_profile(name)
+
+
     def handler_start_button(self):
         """ Handle button between two states """
         btn = self.start_btn
@@ -252,7 +303,6 @@ class MainBody:
             btn.config(text="WAITING")
             self.event_inturrupt()
                
-
 
     def reactivate_system(self):
         self.start_btn.config(text="START")
@@ -323,9 +373,103 @@ class MainBody:
                       self.update_status)
         return (True, final_args)
 
+
     def update_status(self, text):
         """ Update display on what is happening next """
-        print(text)
+        self.status_text.set(text)
+
+
+    def update_profile_list(self):
+        menu = self.profile_select['menu']
+        menu.delete(0, menu.index('end'))
+        for profile in self.profiles:
+            menu.add_command(label=profile, 
+                             command=tk._setit(self.profile, profile))
+        
+
+    def get_profiles(self):
+        """ Gets the profiles saved on the configs folder 
+        See default for profile structure
+        """
+        profiles = self.config_rw.load_config('Profiles')
+        if profiles is None or len(profiles) == 0:
+            profiles = {"Default": self.create_default_profile()}
+        self.profiles = profiles
+        self.update_profile_list()
+
+
+    def create_default_profile(self):
+        default = {
+            'Name': "Default",
+            'Macro 1': {'mods': [], 'key': -1, 'timer': 0}, 
+            'Macro 2': {'mods': [], 'key': -1, 'timer': 0, 'active': False}, 
+            'Macro 3': {'mods': [], 'key': -1, 'timer': 0, 'active': False}, 
+            'Food': {'mods': [], 'key': -1, 'timer': 0, 'active': False}, 
+            'Potion': {'mods': [], 'key': -1, 'timer': 0, 'active': False}, 
+            'Craft Window': {'mods': [], 'key': 78}, 
+            'Select/Confirm': {'mods': [], 'key': 96}, 
+            'Exit Menus': {'mods': [], 'key': 27}, 
+            'Food Time': 30, 
+            'Collect': False
+        }
+        return default
+
+
+    def create_profile(self, name):
+        """ Create profile from existing settings """
+        settings = {}
+        settings['Name'] = name
+        for name, group in self.body.items():
+            settings[name] = group.get_profile()
+        settings['Food Time'] = self.food_max_time.get()
+        settings['Collect'] = self.check_collect.get() == 1
+        return settings
+
+
+    def save_profile(self, name=None):
+        """ Saves profiles to file, if new profile is provided adds it """
+        if name is not None:
+            self.profiles[name] = self.create_profile(name)
+        configs = self.config_rw.load_all()
+        configs['Profiles'] = self.profiles
+        self.config_rw.save_config(configs)
+        self.update_profile_list()
+        name = name if name is not None else ''
+        self.profile.set(name)
+
+
+    def load_profile(self, name):
+        """ Loads profile from provided name (return false if failed) """
+        try:
+            settings = self.profiles[name]
+        except KeyError:
+            return False
+
+        # Load all widget groups
+        for key, setting in settings.items():
+            if key in self.body:
+                self.body[key].load_profile(setting)
+        
+        if settings['Food Time'] == 30:
+            self.food_radio[0].select()
+        elif settings['Food Time'] == 40:
+            self.food_radio[1].select()
+
+        if settings['Collect']:
+            self.check_button_collect.select()
+        else:
+            self.check_button_collect.deselect()
+        name = name if name is not None else ''
+        self.profile.set(name)
+
+        
+    def delete_profile(self, name):
+        """ Deletes a profile """
+        if name not in self.profiles:
+            return
+        del(self.profiles[name])
+        self.save_profile()
+        
 
 
 class WidgetGroup:
@@ -357,9 +501,11 @@ class WidgetGroup:
         else:
             self.entry_time = None
         if enabler:
+            self.enable_var = var
             self.enable = tk.Checkbutton(frame, variable=var, **enable_settings) 
         else: 
             self.enable = None
+
 
     def render_all(self, row):
         x = 3
@@ -372,10 +518,35 @@ class WidgetGroup:
         if self.enable is not None:
             self.enable.grid(row=row, column=6, padx=x, pady=y)
 
+
     def get(self):
         return (self.entry_hk.get_ahk_code(), self.entry_time.get_time())
 
 
+    def get_profile(self):
+        """ Creates settings dictionary to store to file """
+        settings = {}
+        settings['mods'] = self.entry_hk.active_keys['mods']
+        settings['key'] = self.entry_hk.active_keys['key']
+        if self.entry_time:
+            settings['timer'] = self.entry_time.get_time()
+        if self.enable:
+            settings['active'] = self.enable_var.get()
+        return settings
+
+
+    def load_profile(self, settings):
+        """  Loads profile given in the following form:
+        'Macro 2': {'mods': [], 'key': -1, 'timer': 0, 'active': False}
+        """
+        self.entry_hk.set_hotkey(settings['key'], settings['mods'])
+        if self.entry_time is not None:
+            self.entry_time.set_time(settings['timer'])
+        if self.enable is not None:
+            if settings['active']:
+                self.enable.select()
+            else:
+                self.enable.deselect()
         
 
 if __name__ == '__main__':

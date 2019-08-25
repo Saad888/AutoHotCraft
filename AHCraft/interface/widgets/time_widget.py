@@ -27,6 +27,10 @@ class TimeWidget:
     def get_time(self):
         return int(self.timer)
 
+    def set_time(self, time):
+        self.timer = str(time)
+        self.render_text()
+
     def _pack(self):
         """ Renders widget in pack, for debugging purposes only """
         self.widget.pack()

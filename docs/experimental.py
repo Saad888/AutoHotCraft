@@ -174,6 +174,29 @@ varri.set("one")  # initial value
 option = OptionMenu(root, varri, "one", "two", "three", "four")
 option.pack()
 
+check_test = Checkbutton(root)
+
+
+def testestestes():
+    check_test.select()
+
+
+def testestestes2():
+    check_test.deselect()
+
+check_button = Button(root, command=testestestes, text="Check on")
+check_button2 = Button(root, command=testestestes2, text="Check off")
+
+check_test.pack()
+check_button.pack()
+check_button2.pack()
+
+long_text = 'This is a text\nThat is ideally\nsplit over many lines'
+
+long_label = Label(root, text=long_text, justify="left")
+long_label.pack()
+
+
 # Run the loop
 # All GUI applications need to be continuously on your screen
 # Does this via infinite loop, this will keep the GUI running

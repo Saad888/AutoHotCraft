@@ -19,8 +19,9 @@ class Main:
         self.translator = KeyTranslator()
         self.AHKManager = AHKManager()
         self.crafter = Crafter(self.AHKManager)
+        self.config_rw = ConfigLoader()
         self.GUI = MainBody(self.initiate_craft_thread, self.inturrupt_craft,
-                            self.translator)
+                            self.translator, self.config_rw)
 
 
     def initiate_craft_thread(self, *args):
@@ -45,34 +46,28 @@ class Main:
         print('INTURRUPTED')
         self.crafter.user_inturrupt = True
 
-    def initiate(self):
-        self.configs = {}
 
+    def initiate(self):
         # Loads configurations file and locates the path to AutoHotkey.exe
-        try:
-            with open('configs.json', 'r') as file:
-                self.configs = json.load(file)
-            try: 
-                path = self.configs['AHKPath']
-                if self.verify_path(path) is False:
-                    path = self.get_AHK_exe()
-            except KeyError:
-                path = self.get_AHK_exe()
-        except FileNotFoundError:
-            # If the configurations file could not be found, create it via user input
-            print('configs.json was not found')
+        path = self.config_rw.load_config('AHKPath')
+        print(path)
+
+        # If config could not be loaded, take from user input
+        if (not path) or (self.verify_path(path) is False):
             path = self.get_AHK_exe()
 
-        # If no path was provided at this stage, exit the application
-        if path is None:
-            sys.exit()
-
-        # Rewrite the configs to ensure any path updates are reflected
-        self.configs['AHKPath'] = path
-        self.write_configs()
+            # If no path was given, exit application
+            if path is None:
+                sys.exit()
+            
+            # Savea the provided path
+            configs = self.config_rw.load_all()
+            if configs is None:
+                configs = {}
+            configs['AHKPath'] = path
+            self.config_rw.save_config(configs)
 
         self.AHKManager.path = path
-
         self.GUI.start()
 
 
@@ -100,9 +95,28 @@ class Main:
     def verify_path(self, path):
         return re.search('AutoHotkey.exe$', path) and (os.access(path, os.X_OK))
 
-    def write_configs(self):
+
+
+class ConfigLoader:
+    def load_all(self):
+        try:
+            with open('configs.json', 'r') as file:
+                configs = json.load(file)
+            return configs
+        except FileNotFoundError:
+            return None
+
+    def load_config(self, param):
+        configs = self.load_all()
+        try:
+            return configs[param]
+        except (KeyError, TypeError) as e:
+            return None
+
+    def save_config(self, configs):
         with open('configs.json', 'w') as file:
-            json.dump(self.configs, file)
+            json.dump(configs, file)
+            
 
 if __name__ == "__main__":
     test = Main()
