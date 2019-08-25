@@ -42,7 +42,24 @@ class Main:
         try:
             self.crafter.start(args)
         except Exception:
-            traceback.print_exc()
+            file = open("ERROR.txt", 'w')
+            traceback.print_exc(file=file)
+            file.write('\nConfigs:\n')
+            json.dump(self.config_rw.load_all(), file)
+            file.write('\n\nCurrent Settings:\n')
+            json.dump(self.GUI.create_profile('Current'), file)
+            file.write('\n\nAHC Script:\n')
+            try:
+                with open('AHCScript.ahk', 'r') as script:
+                    for line in script:
+                        file.write(line)
+            except:
+                file.write('Error in grabbing AHC script')
+            message = """An error has occured, please send the "ERROR.txt" to Xaad"""
+            showwarning(
+                title="ERROR", 
+                message=message)
+            file.close()
         finally:
             toggler()
         

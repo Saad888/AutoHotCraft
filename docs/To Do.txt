@@ -1,24 +1,15 @@
+Final stuff to do:
 
-
-Note for 7/29:
-- We have determined that you can use {vkXX} in AHK to send keyboard commands which 
-are the virtual key code, making life much easier. While tkinter provides the keycodes in 
-decimal, we can conver them to hex(). All we need to do now is to create an easy
-filter for the virtual keys to appear on the display, which can be done via a .csv
-Also filter which vkeys need to be used in the first place
-
-
-Note from 8/16: 
-- ESC is a keybind used in FFXIV, it will need to be set manually, take account for this eventually
-
-
-Current Plan:
-2. Implement label system for hotkey setup    DONE
-3. Implement locking and unlocking of system functions    DONE
-4. Implement profile system
-5. Create proper UI
-1. Fully verify if the command sending is working   
-
-
-NOTE: 8/19: Create focus locking system DONE
-
+0. Create help button to explain what to do
+1. Various UI checks to ensure functionality is correct
+ - Create system to automatically load the previous profile 
+2. Redesign UI and colors to look better
+3. If time add a proper logo
+4. Create an icon and change window name   
+5. Lock the UI so it cannot be resized
+6. Add option to always keep on top?
+7. Compile exe
+8. Complete readme
+9. Sign exe
+10. Final debugging
+11. Send for release
