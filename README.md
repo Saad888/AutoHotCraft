@@ -19,6 +19,7 @@ https://www.autohotkey.com/
 # Instructions for use:
 To enter a hotkey into a selection, click on the window or tab over to it. When it is highlighted, press SPACE or click on the window again until it turns yellow.  
 ![Active UI Image](https://github.com/Saad888/AutoHotCraft/blob/master/docs/Accepting%20Input.PNG)
+
 When the window is yellow, it ready to take a hotkey. Press any key along with modifiers (Shift, Contorl, or Alt) to save it in that field.    
 
 For the timers, simply tab over to or click on the time window and type in any number.
