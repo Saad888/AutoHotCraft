@@ -3,7 +3,7 @@ An application designed for automatic crafting in Final Fantasy XIV
 This application uses Autohotkey to send inputs into the game to start crafting macros, repeat the same crafts, and reactivate food and potions when they are running out.
 It's designed to make it easy to handle different macros and craft lengths, and will even complete a collectable craft. 
 
-![Main Body Image](LINK)
+![Main Body Image](https://github.com/Saad888/AutoHotCraft/blob/master/docs/Main%20Screen.PNG)
 
 # Main features:
 1. Automate up to three macros   
@@ -18,7 +18,8 @@ https://www.autohotkey.com/
 
 # Instructions for use:
 To enter a hotkey into a selection, click on the window or tab over to it. When it is highlighted, press SPACE or click on the window again until it turns yellow.  
-![Active UI Image](Link)
+![Active UI Image](https://github.com/Saad888/AutoHotCraft/blob/master/docs/Accepting%20Input.PNG)
+
 When the window is yellow, it ready to take a hotkey. Press any key along with modifiers (Shift, Contorl, or Alt) to save it in that field.    
 
 For the timers, simply tab over to or click on the time window and type in any number.
