@@ -12,9 +12,12 @@ It's designed to make it easy to handle different macros and craft lengths.
 4. Save profiles of different hotkey configurations and timers for various crafts  
 5. Runs in the background without requiring focus on the game  
 
-# Requirements:
+# Requirements and Installation:
 This applicaiton requires AutoHotkey to be installed to use, you can download it from here:  
 https://www.autohotkey.com/
+
+You can download the installer here:
+https://github.com/Saad888/AutoHotCraft/releases/tag/1.0
 
 # Instructions for use:
 To enter a hotkey into a selection, click on the window or tab over to it. When it is highlighted, press SPACE or click on the window again until it turns yellow.  
