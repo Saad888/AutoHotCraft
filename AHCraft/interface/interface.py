@@ -14,7 +14,7 @@ class MainBody:
         self.root.withdraw()
         self.root.title('AutoHotCraft')
         self.root.tk.call('wm', 'iconphoto', self.root._w, 
-                          tk.PhotoImage(file='Images\Rapid_Synthesis.png'))
+                          tk.PhotoImage(file='Rapid_Synthesis.png'))
         
         # Core Variables
         self.key_translator = key_translator
