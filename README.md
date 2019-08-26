@@ -1,7 +1,7 @@
 # AutoHotCraft
 An application designed for automatic crafting in Final Fantasy XIV
 This application uses Autohotkey to send inputs into the game to start crafting macros, repeat the same crafts, and reactivate food and potions when they are running out.
-It's designed to make it easy to handle different macros and craft lengths, and will even complete a collectable craft. 
+It's designed to make it easy to handle different macros and craft lengths. 
 
 ![Main Body Image](https://github.com/Saad888/AutoHotCraft/blob/master/docs/Main%20Screen.PNG)
 
