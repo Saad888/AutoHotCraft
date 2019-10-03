@@ -22,8 +22,9 @@ class AHKManager:
         # Run the script passing the hotkey as a parameter, verifies files
         try:
             result = subprocess.run(cmd, 
-                                    stderr=subprocess.PIPE, 
-                                    stdout=subprocess.PIPE)
+                                    stdout=subprocess.PIPE, 
+                                    stderr=subprocess.STDOUT, 
+                                    stdin=subprocess.DEVNULL)
         except FileNotFoundError:
             # If error, checks if AHCScript is missing
             try:
