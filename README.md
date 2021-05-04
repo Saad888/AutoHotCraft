@@ -1,6 +1,6 @@
 # !!!DEPREECATED!!! 
 
-Please us this instead: https://github.com/Saad888/AutoSynthesis
+Please use this instead: https://github.com/Saad888/AutoSynthesis
 
 
 # AutoHotCraft
